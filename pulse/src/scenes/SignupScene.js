@@ -1,5 +1,6 @@
-import React from "react";
+import React, {Component} from "react";
 import Button from '@material-ui/core/Button';
+import Chart from '../components/Chart';
 const Styles = {
     container: {
         paddingTop: "100px",
@@ -42,10 +43,14 @@ function onStartButtonClick() {
   });
 }
 
+const times =  [];
 function onStopButtonClick() {
   if (myCharacteristic) {
     myCharacteristic.stopNotifications()
     .then(_ => {
+      for (var i = 0; i < list.length*20; i+=20) {
+        times.push(i)
+      }
       console.log('> Notifications stopped');
       myCharacteristic.removeEventListener('characteristicvaluechanged',
           handleNotifications);
@@ -56,31 +61,58 @@ function onStopButtonClick() {
   }
 }
 
+const list = [];
 function handleNotifications(event) {
   let value = event.target.value;
   let bytes = value.byteLength;
   var eight = new Uint8Array(value.buffer);
   var sliced = eight.slice(1, 12);
-  console.log(eight,sliced,value,bytes)
-
-  let a = [];
-  // Convert raw data bytes to hex values just for the sake of showing something.
-  // In the "real" world, you'd use data.getUint8, data.getUint16 or even
-  // TextDecoder to process raw data bytes.
-  for (let i = 0; i < value.byteLength; i++) {
-    a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
-  }
+  //console.log(eight,sliced,value,bytes)
+  if (bytes == 11) {
+  list.push.apply(list, sliced);
+}
+  console.log(list)
 
   //console.log('> ' + a.join(' '));
 }
 
-export default () =>
-    <div style={Styles.container} className="NotFound">
-        <h3>Execute Script Screen</h3>
-        <Button variant="contained" size="large" color="primary" onClick={onStartButtonClick}>
-        Start Diagnosis
-        </Button>
-        <Button variant="contained" size="large" color="secondary" onClick={onStopButtonClick}>
-        Stop
-        </Button>
-    </div>
+
+
+const d={
+  chartData:{
+    labels: times,//time in switch
+    datasets:[
+      {
+        label: 'Pulse Height',
+        data:list,
+      }
+    ],
+    backgroundColor: 'rgba(255,99,132,0.6)'
+  }
+}
+
+
+export default class SignUp extends Component {
+
+  constructor(props) {
+      super(props);
+    }
+    render() {
+        console.log(d)
+        return (
+
+          <div style={Styles.container} className="NotFound">
+              <h3>Execute Script Screen</h3>
+              <Button variant="contained" size="large" color="primary" onClick={onStartButtonClick}>
+              Start Diagnosis
+              </Button>
+              <Button variant="contained" size="large" color="secondary" onClick={onStopButtonClick}>
+              Stop
+              </Button>
+              <Chart>
+              data ={d.chartData}
+              </Chart>
+          </div>
+        );
+    }
+}
