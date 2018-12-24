@@ -16,6 +16,19 @@ function onStartButtonClick() {
   var serviceUuid = 'cdeacb80-5235-4c07-8846-93a37ee6b86d'
   var characteristicUuid = 'cdeacb81-5235-4c07-8846-93a37ee6b86d'
 
+  this.setState({
+    chartData:{
+      labels: [],//time in switch
+      datasets:[
+        {
+          label: 'Pulse Height',
+          data:[],
+        }
+      ],
+      backgroundColor: 'rgba(255,99,132,0.6)'
+    }
+  })
+
   console.log('Requesting Bluetooth Device...');
   navigator.bluetooth.requestDevice({filters: [{services: [serviceUuid]}]})
   .then(device => {
@@ -43,7 +56,7 @@ function onStartButtonClick() {
   });
 }
 
-const times =  [];
+
 function onStopButtonClick() {
   if (myCharacteristic) {
     myCharacteristic.stopNotifications()
@@ -51,6 +64,20 @@ function onStopButtonClick() {
       for (var i = 0; i < list.length*20; i+=20) {
         times.push(i)
       }
+      this.setState({
+        chartData:{
+          labels: times,//time in switch
+          datasets:[
+            {
+              label: 'Pulse Height',
+              data:list,
+            }
+          ],
+          backgroundColor: 'rgba(255,99,132,0.6)'
+        }
+      })
+      times = []
+      list = []
       console.log('> Notifications stopped');
       myCharacteristic.removeEventListener('characteristicvaluechanged',
           handleNotifications);
@@ -61,7 +88,9 @@ function onStopButtonClick() {
   }
 }
 
-const list = [];
+var list = [];
+var times =  [];
+//var count = 0;
 function handleNotifications(event) {
   let value = event.target.value;
   let bytes = value.byteLength;
@@ -70,6 +99,7 @@ function handleNotifications(event) {
   //console.log(eight,sliced,value,bytes)
   if (bytes == 11) {
   list.push.apply(list, sliced);
+
 }
   console.log(list)
 
@@ -78,39 +108,38 @@ function handleNotifications(event) {
 
 
 
-const d={
-  chartData:{
-    labels: times,//time in switch
-    datasets:[
-      {
-        label: 'Pulse Height',
-        data:list,
-      }
-    ],
-    backgroundColor: 'rgba(255,99,132,0.6)'
-  }
-}
-
-
 export default class SignUp extends Component {
 
   constructor(props) {
       super(props);
+
+      this.state = {
+        chartData:{
+          labels: [],//time in switch
+          datasets:[
+            {
+              label: 'Pulse Height',
+              data:[],
+            }
+          ],
+          backgroundColor: 'rgba(255,99,132,0.6)'
+        }
+      }
     }
     render() {
-        console.log(d)
+        console.log(this.state)
         return (
 
           <div style={Styles.container} className="NotFound">
               <h3>Execute Script Screen</h3>
-              <Button variant="contained" size="large" color="primary" onClick={onStartButtonClick}>
+              <Button variant="contained" size="large" color="primary" onClick={onStartButtonClick.bind(this)}>
               Start Diagnosis
               </Button>
-              <Button variant="contained" size="large" color="secondary" onClick={onStopButtonClick}>
+              <Button variant="contained" size="large" color="secondary" onClick={onStopButtonClick.bind(this)}>
               Stop
               </Button>
               <Chart>
-              data ={d.chartData}
+              data ={this.state.chartData}
               </Chart>
           </div>
         );

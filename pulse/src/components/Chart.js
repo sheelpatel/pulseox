@@ -6,6 +6,7 @@ class Chart extends Component{
     super(props);
 
   }
+
    render(){                      // outputs to screen
      return(
        <div className="chart">
