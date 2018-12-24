@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/pulseox/precache-manifest.86d316af2bd11d704318dcb025620123.js"
+  "/pulseox/precache-manifest.053c57a9183f6c977316669234f848ea.js"
 );
 
 workbox.clientsClaim();
